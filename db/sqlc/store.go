@@ -6,22 +6,27 @@ import (
 	"fmt"
 )
 
-// Store 提供所有執行 DB query 與 transaction 的函數
-type Store struct {
+type Store interface {
+	Querier
+	TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error)
+}
+
+// SQLStore 提供所有執行 DB query 與 transaction 的函數
+type SQLStore struct {
 	*Queries
 	db *sql.DB
 }
 
 // NewStore 建立一個新的 Store
-func NewStore(db *sql.DB) *Store {
-	return &Store{
+func NewStore(db *sql.DB) Store {
+	return &SQLStore{
 		db:      db,
 		Queries: New(db),
 	}
 }
 
 // ExecTx 開啟一個 transaction 執行傳入的 function 根據 err 決定 commit 或 rollback
-func (store *Store) execTx(ctx context.Context, fn func(*Queries) error) error {
+func (store *SQLStore) execTx(ctx context.Context, fn func(*Queries) error) error {
 
 	tx, err := store.db.BeginTx(ctx, nil)
 	if err != nil {
@@ -58,7 +63,7 @@ type TransferTxResult struct {
 
 // TransferTx 在 transaction 中處理匯款
 // 建立轉帳紀錄(transfer), 帳戶紀錄(entry), 修改帳戶餘額(account)
-func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
+func (store *SQLStore) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
 	var result TransferTxResult
 
 	err := store.execTx(ctx, func(q *Queries) error {
