@@ -1,7 +1,7 @@
 package db
 
 import (
-	"SimpleBank/db/util"
+	"SimpleBank/util"
 	"context"
 	"database/sql"
 	"github.com/stretchr/testify/require"
@@ -10,7 +10,7 @@ import (
 
 func createRandomAccount(t *testing.T) Account {
 	arg := CreateAccountParams{
-		Owner:    util.RandomString(6),
+		Owner:    util.RandomOwner(),
 		Balance:  util.RandomMoney(),
 		Currency: util.RandomCurrency(),
 	}
