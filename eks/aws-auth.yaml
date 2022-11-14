@@ -1,0 +1,11 @@
+apiVersion: v1 
+kind: ConfigMap 
+metadata: 
+  name: aws-auth 
+  namespace: kube-system 
+data: 
+  mapUsers: | 
+    - userarn: arn:aws:iam::275011932683:user/githu
+      username: github-ci
+      groups:
+        - system:masters
